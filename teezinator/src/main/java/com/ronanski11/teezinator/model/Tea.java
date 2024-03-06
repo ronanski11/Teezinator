@@ -22,7 +22,9 @@ public class Tea {
 	
 	private String image;
 	
+	private String colour;
+	
 	@DBRef
-	private List<Lookup> leaves;
+	private List<Lookup> ingredients;
 
 }

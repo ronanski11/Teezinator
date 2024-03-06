@@ -22,6 +22,11 @@ body {
   flex-direction: column;
 }
 
+::-webkit-scrollbar {
+  display: none;
+  /* This will hide the scrollbar in WebKit browsers */
+}
+
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
@@ -29,6 +34,31 @@ input:-webkit-autofill:active {
   -webkit-box-shadow: 0 0 0 30px #121212 inset !important;
   -webkit-text-fill-color: white !important;
   caret-color: white !important;
+}
+
+.stats-column-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  height: 100%;
+}
+
+.lifetime-stats-container {
+  margin: 1rem;
+  width: 100%;
+}
+
+.stats-bar-animation {
+  transition: width 2s ease-out;
+}
+
+.stats-bar-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  height: 100%;
+  width: 100%;
 }
 
 .navbar {
@@ -59,16 +89,23 @@ input:-webkit-autofill:active {
 .footer-container {
   position: fixed;
   bottom: 0;
-  height: 50px;
+  height: fit-content;
   width: 100%;
-  padding: 1rem 1rem;
   display: flex;
+  margin-bottom: 5px;
   justify-content: center;
   align-items: center;
+  background-color: #121212;
+  box-shadow: 0 0 7px 9px #121212,
+    0 0 15px 10px transparent;
 }
 
 .footer-copyright {
   color: grey
+}
+
+.react-datepicker__input-container {
+  display: none !important;
 }
 
 .navbar-option {

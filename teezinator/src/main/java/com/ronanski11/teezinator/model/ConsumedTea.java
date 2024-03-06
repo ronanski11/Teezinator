@@ -1,7 +1,6 @@
 package com.ronanski11.teezinator.model;
 
-import java.time.LocalDate;
-import java.util.Map;
+import java.time.LocalDateTime;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
@@ -11,18 +10,18 @@ import lombok.Data;
 
 @Document
 @Data
-public class Stats {
+public class ConsumedTea {
 	
 	@Id
 	private String id;
 	
 	@DBRef
-	private User user;
+	private Tea tea;
 	
-	private Map<String, Integer> teaNumbers;
+	private String user;
 	
-	private Map<String, Map<String, Integer>> teaNumbersPerWeek;
+	String image;
 	
-	private Map<LocalDate, Map<String, Integer>> teaNumbersPerDay;
+	private LocalDateTime time;
 
 }

@@ -1,12 +1,9 @@
 import Navbar from "../Navbar/Navbar";
 import Footer from "../Footer/Footer";
-import LifeTimeStats from "../LifetimeStats/LifeTimeStats";
-import WeeklyStats from "../WeeklyStats/WeeklyStats";
-import DailyStats from "../DailyStats/DailyStats";
-
+import LifetimeLeaderboard from "../LifetimeLeaderboard/LifetimeLeaderboard";
 // Mock data for the bar chart
 
-const Stats = () => {
+const Leaderboard = () => {
   return (
     <div>
       <Navbar />
@@ -18,17 +15,14 @@ const Stats = () => {
           gap: "5%",
         }}
       >
+        <LifetimeLeaderboard />
         <div
           style={{ width: "100%", display: "flex", flexDirection: "column" }}
-        >
-          <LifeTimeStats />
-          <WeeklyStats />
-        </div>
-        <DailyStats />
+        ></div>
       </div>
       <Footer />
     </div>
   );
 };
 
-export default Stats;
+export default Leaderboard;

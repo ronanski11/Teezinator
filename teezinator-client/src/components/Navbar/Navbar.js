@@ -7,7 +7,7 @@ const Navbar = () => {
       <Toolbar sx={{ minHeight: "80px" }}>
         {" "}
         {/* Increase toolbar height */}
-        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+        <Typography variant="h5" component="div" sx={{ flexGrow: 1 }}>
           <a href="/" style={{ color: "inherit", textDecoration: "none" }}>
             <img
               src="images/TeezinatorLogo.png"

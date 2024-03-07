@@ -1,5 +1,6 @@
 import { Box } from "@mui/system";
 import React from "react";
+import { CircularProgress } from "@mui/material";
 
 const DayStats = ({ teaStats, teas, day }) => {
   const calculateWidthPercentage = (teaId) => {
@@ -44,8 +45,14 @@ const DayStats = ({ teaStats, teas, day }) => {
 
   day = day.replace(/-/g, ".");
 
+  const sortedTeas = [...teas].sort((a, b) => {
+    const statsA = teaStats[a.id] || 0;
+    const statsB = teaStats[b.id] || 0;
+    return statsB - statsA; // Sort in descending order
+  });
+
   return (
-    <div className="lifetime-stats-container">
+    <div style={{ margin: "1rem" }}>
       <h1 style={{ margin: "10px" }}>
         {dayOfWeek} | {day}
       </h1>
@@ -63,7 +70,7 @@ const DayStats = ({ teaStats, teas, day }) => {
           width: "100%", // Adjust width as needed
         }}
       >
-        {teas.map((tea, index) => (
+        {sortedTeas.map((tea, index) => (
           <div
             className="stats-row-container"
             key={tea.id}
@@ -73,7 +80,7 @@ const DayStats = ({ teaStats, teas, day }) => {
               width: "100%",
             }} // Use flexbox for horizontal layout of each bar
           >
-            <p style={{ color: "white", width: "100px", textAlign: "right" }}>
+            <p style={{ color: "white", width: "150px", textAlign: "right" }}>
               {tea.name}
             </p>
             <div className="stats-bar-container">

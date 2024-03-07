@@ -20,9 +20,39 @@ import Footer from "../Footer/Footer";
 
 const AddTea = () => {
   const [timeOfConsumption, setTimeOfConsumption] = useState(new Date());
+  const [role, setRole] = useState("");
+  const [usernames, setUsernames] = useState([]);
   const [inputValue, setInputValue] = useState(
     moment().format("MMMM D, YYYY h:mm a")
   );
+  const [selectedUser, setSelectedUser] = useState(""); // State to hold the selected user
+
+  useEffect(() => {
+    const fetchUserRole = async () => {
+      try {
+        const response = await axios.get("/tea/getUserRole");
+        setRole(response.data);
+      } catch (error) {
+        console.error("Failed to fetch user role", error);
+      }
+    };
+    fetchUserRole();
+  }, []);
+
+  useEffect(() => {
+    if (role === "ADMIN") {
+      const fetchUsernames = async () => {
+        try {
+          const response = await axios.get("/tea/getAllUsernames");
+          setUsernames(response.data); // Assume response.data is the array of usernames
+        } catch (error) {
+          console.error("Failed to fetch usernames", error);
+        }
+      };
+      fetchUsernames();
+    }
+  }, [role]);
+
   const datePickerRef = useRef(null);
   const [teaType, setTeaType] = useState("");
   const [teas, setTeas] = useState([]);
@@ -69,6 +99,10 @@ const AddTea = () => {
       "timeOfConsumption",
       moment(timeOfConsumption).format("YYYY-MM-DDTHH:mm:ss")
     );
+    if (role === "ADMIN" && selectedUser) {
+      formData.append("username", selectedUser);
+    }
+
     if (image) formData.append("image", image);
 
     try {
@@ -123,6 +157,24 @@ const AddTea = () => {
                 ))}
               </Select>
             </FormControl>
+            {role === "ADMIN" && (
+              <FormControl fullWidth margin="normal">
+                <InputLabel id="user-select-label">Select User</InputLabel>
+                <Select
+                  labelId="user-select-label"
+                  id="user-select"
+                  value={selectedUser}
+                  label="Select User"
+                  onChange={(e) => setSelectedUser(e.target.value)}
+                >
+                  {usernames.map((username, index) => (
+                    <MenuItem key={index} value={username}>
+                      {username}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            )}
             <div className="form-group">
               <TextField
                 label="Time of Consumption"

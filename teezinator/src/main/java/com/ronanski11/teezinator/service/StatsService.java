@@ -20,10 +20,12 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.aggregation.MatchOperation;
+import org.springframework.data.mongodb.core.aggregation.SortOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Service;
 
@@ -253,8 +255,11 @@ public class StatsService {
 		MatchOperation matchUser = Aggregation.match(Criteria.where("user").is(username));
 		MatchOperation matchTime = Aggregation
 				.match(Criteria.where("time").gte(startDate.atStartOfDay()).lte(endDate.atTime(23, 59, 59)));
+		
+	    SortOperation sortByTimeAsc = Aggregation.sort(Sort.Direction.ASC, "time");
 
-		Aggregation aggregation = Aggregation.newAggregation(matchUser, matchTime);
+	    // Include the sorting operation in your aggregation pipeline
+	    Aggregation aggregation = Aggregation.newAggregation(matchUser, matchTime, sortByTimeAsc);
 
 		AggregationResults<ConsumedTea> results = mongoTemplate.aggregate(aggregation, "consumedTea",
 				ConsumedTea.class);
@@ -299,10 +304,6 @@ public class StatsService {
 	public Map<String, Map<String, Integer>> getByWeek(String username, String week) {
 		Map<String, Map<String, Integer>> stats = new HashMap<String, Map<String, Integer>>();
 		
-		if (username != null) {
-			
-		}
-		
 		List<ConsumedTea> consumedTeas = getConsumedTeasByUserAndWeek(username, week);
 
 		for (ConsumedTea consumedTea : consumedTeas) {
@@ -322,7 +323,19 @@ public class StatsService {
 				stats.put(formatDailyKey(consumedTea), map);
 			}
 		}
-		return stats;
+		
+		return sortByDateAscending(stats);
+	}
+	
+	public Map<String, Map<String, Integer>> sortByDateAscending(Map<String, Map<String, Integer>> stats) {
+        Map<String, Map<String, Integer>> sortedMap = stats.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey(Comparator.comparing(key -> LocalDate.parse(key, dateFormatter))))
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (oldValue, newValue) -> oldValue, LinkedHashMap::new));
+
+        return sortedMap;
 	}
 
 }

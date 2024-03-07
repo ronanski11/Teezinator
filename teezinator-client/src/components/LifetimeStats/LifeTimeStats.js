@@ -57,11 +57,6 @@ const BarChartMock = () => {
     );
   }
 
-  const fetchTeas = async () => {
-    const response = await axios.get("tea/getall");
-    setTeas(response.data);
-  };
-
   const doesTeaExist = (teaId) => {
     if (teaStats[teaId] === undefined) {
       return "none";

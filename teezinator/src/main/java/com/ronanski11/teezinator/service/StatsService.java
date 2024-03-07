@@ -19,7 +19,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
@@ -45,7 +44,7 @@ public class StatsService {
 
 	@Autowired
 	TeaRepository teaRepository;
-	
+
 	@Autowired
 	MongoTemplate mongoTemplate;
 
@@ -56,8 +55,7 @@ public class StatsService {
 	public Map<String, Integer> getTotalStatsByUser(String username) {
 
 		Map<String, Integer> stats = new HashMap<String, Integer>();
-		List<ConsumedTea> consumedTeas = consumedTeaRepository
-				.findByUser(username);
+		List<ConsumedTea> consumedTeas = consumedTeaRepository.findByUser(username);
 
 		for (ConsumedTea consumedTea : consumedTeas) {
 			if (!stats.containsKey(consumedTea.getTea().getId())) {
@@ -66,14 +64,13 @@ public class StatsService {
 				stats.put(consumedTea.getTea().getId(), stats.get(consumedTea.getTea().getId()) + 1);
 			}
 		}
-		
+
 		return stats;
 	}
 
 	public Map<String, Map<String, Integer>> getWeeklyStatsByUser(String username) {
 		Map<String, Map<String, Integer>> stats = new HashMap<String, Map<String, Integer>>();
-		List<ConsumedTea> consumedTeas = consumedTeaRepository
-				.findByUser(username);
+		List<ConsumedTea> consumedTeas = consumedTeaRepository.findByUser(username);
 		for (ConsumedTea consumedTea : consumedTeas) {
 			String teaId = consumedTea.getTea().getId();
 
@@ -98,8 +95,7 @@ public class StatsService {
 
 	public Map<String, Map<String, Integer>> getDailyStatsByUser(String username) {
 		Map<String, Map<String, Integer>> stats = new HashMap<String, Map<String, Integer>>();
-		List<ConsumedTea> consumedTeas = consumedTeaRepository
-				.findByUser(username);
+		List<ConsumedTea> consumedTeas = consumedTeaRepository.findByUser(username);
 		for (ConsumedTea consumedTea : consumedTeas) {
 			String teaId = consumedTea.getTea().getId();
 
@@ -128,41 +124,32 @@ public class StatsService {
 		return String.format("%s-%s", consumedTea.getTime().format(weekOfYearFormatter),
 				consumedTea.getTime().getYear());
 	}
-	
+
 	public List<LocalDate> getStartAndEndDates(String weekKey) {
 		String[] parts = weekKey.split("-");
-	    int week = Integer.parseInt(parts[0]);
-	    int year = Integer.parseInt(parts[1]);
-	    
-	    LocalDate startDate = LocalDate.now()
-	        .withYear(year)
-	        .with(WeekFields.of(Locale.getDefault()).weekOfWeekBasedYear(), week)
-	        .with(TemporalAdjusters.previousOrSame(WeekFields.of(Locale.getDefault()).getFirstDayOfWeek()));
-	    
-	    LocalDate endDate = startDate.plusWeeks(1);
-	    
-	    return Arrays.asList(startDate, endDate);
+		int week = Integer.parseInt(parts[0]);
+		int year = Integer.parseInt(parts[1]);
+
+		LocalDate startDate = LocalDate.now().withYear(year)
+				.with(WeekFields.of(Locale.getDefault()).weekOfWeekBasedYear(), week)
+				.with(TemporalAdjusters.previousOrSame(WeekFields.of(Locale.getDefault()).getFirstDayOfWeek()));
+
+		LocalDate endDate = startDate.plusWeeks(1);
+
+		return Arrays.asList(startDate, endDate);
 	}
 
-    public Map<String, Integer> getTopTeasByUser(String username) {
-    	
-        return getTotalStatsByUser(username).entrySet()
-                .stream()
-                .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
-                .limit(3)
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey, 
-                        Map.Entry::getValue, 
-                        (e1, e2) -> e1,
-                        LinkedHashMap::new
-                ));
-    }
+	public Map<String, Integer> getTopTeasByUser(String username) {
+
+		return getTotalStatsByUser(username).entrySet().stream()
+				.sorted(Map.Entry.<String, Integer>comparingByValue().reversed()).limit(3)
+				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+	}
 
 	public Map<String, Integer> getTotalWeeklyStatsByUser(String username) {
 		Map<String, Integer> stats = new HashMap<String, Integer>();
-		List<ConsumedTea> consumedTeas = consumedTeaRepository
-				.findByUser(username);
-		
+		List<ConsumedTea> consumedTeas = consumedTeaRepository.findByUser(username);
+
 		for (ConsumedTea consumedTea : consumedTeas) {
 			if (!stats.containsKey(formatWeeklyKey(consumedTea))) {
 				stats.put(formatWeeklyKey(consumedTea), 1);
@@ -170,15 +157,14 @@ public class StatsService {
 				stats.put(formatWeeklyKey(consumedTea), stats.get(formatWeeklyKey(consumedTea)) + 1);
 			}
 		}
-		
+
 		return sortMapByWeekAndYearDescending(stats);
 	}
 
 	public Map<String, Integer> getTotalDailyStatsByUser(String username) {
 		Map<String, Integer> stats = new HashMap<String, Integer>();
-		List<ConsumedTea> consumedTeas = consumedTeaRepository
-				.findByUser(username);
-		
+		List<ConsumedTea> consumedTeas = consumedTeaRepository.findByUser(username);
+
 		for (ConsumedTea consumedTea : consumedTeas) {
 			if (!stats.containsKey(formatDailyKey(consumedTea))) {
 				stats.put(formatDailyKey(consumedTea), 1);
@@ -186,97 +172,94 @@ public class StatsService {
 				stats.put(formatDailyKey(consumedTea), stats.get(formatDailyKey(consumedTea)) + 1);
 			}
 		}
-		
+
 		return sortMapByDateDescending(stats);
 	}
-	
-	
+
 	private Map<String, Integer> sortMapByWeekAndYearDescending(Map<String, Integer> unsortedStats) {
-        List<Map.Entry<String, Integer>> entries = new ArrayList<>(unsortedStats.entrySet());
-        
-        Collections.sort(entries, new Comparator<Map.Entry<String, Integer>>() {
-            @Override
-            public int compare(Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) {
-                String[] weekYear1 = o1.getKey().split("-");
-                String[] weekYear2 = o2.getKey().split("-");
-                
-                int year1 = Integer.parseInt(weekYear1[1]);
-                int year2 = Integer.parseInt(weekYear2[1]);
-                int yearCompare = Integer.compare(year2, year1);
-                
-                if (yearCompare == 0) {
-                    int week1 = Integer.parseInt(weekYear1[0]);
-                    int week2 = Integer.parseInt(weekYear2[0]);
-                    return Integer.compare(week2, week1);
-                }
-                return yearCompare;
-            }
-        });
+		List<Map.Entry<String, Integer>> entries = new ArrayList<>(unsortedStats.entrySet());
 
-        Map<String, Integer> sortedStats = new LinkedHashMap<>();
-        for (Map.Entry<String, Integer> entry : entries) {
-            sortedStats.put(entry.getKey(), entry.getValue());
-        }
+		Collections.sort(entries, new Comparator<Map.Entry<String, Integer>>() {
+			@Override
+			public int compare(Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) {
+				String[] weekYear1 = o1.getKey().split("-");
+				String[] weekYear2 = o2.getKey().split("-");
 
-        return sortedStats;
-    }
-	
+				int year1 = Integer.parseInt(weekYear1[1]);
+				int year2 = Integer.parseInt(weekYear2[1]);
+				int yearCompare = Integer.compare(year2, year1);
+
+				if (yearCompare == 0) {
+					int week1 = Integer.parseInt(weekYear1[0]);
+					int week2 = Integer.parseInt(weekYear2[0]);
+					return Integer.compare(week2, week1);
+				}
+				return yearCompare;
+			}
+		});
+
+		Map<String, Integer> sortedStats = new LinkedHashMap<>();
+		for (Map.Entry<String, Integer> entry : entries) {
+			sortedStats.put(entry.getKey(), entry.getValue());
+		}
+
+		return sortedStats;
+	}
+
 	private Map<String, Integer> sortMapByDateDescending(Map<String, Integer> unsortedStats) {
-        List<Map.Entry<String, Integer>> entries = new ArrayList<>(unsortedStats.entrySet());
-        
-        Collections.sort(entries, new Comparator<Map.Entry<String, Integer>>() {
-            private final SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+		List<Map.Entry<String, Integer>> entries = new ArrayList<>(unsortedStats.entrySet());
 
-            @Override
-            public int compare(Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) {
-                try {
-                    return dateFormat.parse(o2.getKey()).compareTo(dateFormat.parse(o1.getKey()));
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                    return 0;
-                }
-            }
-        });
+		Collections.sort(entries, new Comparator<Map.Entry<String, Integer>>() {
+			private final SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
 
-        Map<String, Integer> sortedStats = new LinkedHashMap<>();
-        for (Map.Entry<String, Integer> entry : entries) {
-            sortedStats.put(entry.getKey(), entry.getValue());
-        }
+			@Override
+			public int compare(Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) {
+				try {
+					return dateFormat.parse(o2.getKey()).compareTo(dateFormat.parse(o1.getKey()));
+				} catch (ParseException e) {
+					e.printStackTrace();
+					return 0;
+				}
+			}
+		});
 
-        return sortedStats;
-    }
+		Map<String, Integer> sortedStats = new LinkedHashMap<>();
+		for (Map.Entry<String, Integer> entry : entries) {
+			sortedStats.put(entry.getKey(), entry.getValue());
+		}
+
+		return sortedStats;
+	}
 
 	public Map<String, Integer> getLifetimeLeaderboard() {
-		
+
 		Map<String, Integer> stats = new HashMap<String, Integer>();
 		for (User user : userRepository.findAll()) {
 			stats.put(user.getUsername(), consumedTeaRepository.findByUser(user.getUsername()).size());
 		}
-		
-	    Map<String, Integer> sortedStats = stats.entrySet()
-	            .stream()
-	            .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
-	            .collect(Collectors.toMap(
-	                    Map.Entry::getKey, 
-	                    Map.Entry::getValue, 
-	                    (oldValue, newValue) -> oldValue, LinkedHashMap::new));
-	    
-	    return sortedStats;
+
+		Map<String, Integer> sortedStats = stats.entrySet().stream()
+				.sorted(Map.Entry.<String, Integer>comparingByValue().reversed()).collect(Collectors.toMap(
+						Map.Entry::getKey, Map.Entry::getValue, (oldValue, newValue) -> oldValue, LinkedHashMap::new));
+
+		return sortedStats;
 	}
-	
+
 	public List<ConsumedTea> getConsumedTeasByUserAndWeek(String username, String week) {
-	    List<LocalDate> startAndEndDates = getStartAndEndDates(week);
-	    LocalDate startDate = startAndEndDates.get(0);
-	    LocalDate endDate = startAndEndDates.get(1);
+		List<LocalDate> startAndEndDates = getStartAndEndDates(week);
+		LocalDate startDate = startAndEndDates.get(0);
+		LocalDate endDate = startAndEndDates.get(1);
 
-	    MatchOperation matchUser = Aggregation.match(Criteria.where("user").is(username));
-	    MatchOperation matchTime = Aggregation.match(Criteria.where("time").gte(startDate.atStartOfDay()).lte(endDate.atTime(23, 59, 59)));
+		MatchOperation matchUser = Aggregation.match(Criteria.where("user").is(username));
+		MatchOperation matchTime = Aggregation
+				.match(Criteria.where("time").gte(startDate.atStartOfDay()).lte(endDate.atTime(23, 59, 59)));
 
-	    Aggregation aggregation = Aggregation.newAggregation(matchUser, matchTime);
+		Aggregation aggregation = Aggregation.newAggregation(matchUser, matchTime);
 
-	    AggregationResults<ConsumedTea> results = mongoTemplate.aggregate(aggregation, "consumedTea", ConsumedTea.class);
+		AggregationResults<ConsumedTea> results = mongoTemplate.aggregate(aggregation, "consumedTea",
+				ConsumedTea.class);
 
-	    return results.getMappedResults();
+		return results.getMappedResults();
 	}
 
 	public Map<String, Integer> getConsumedTeasByUserAndDay(String username, String day) {
@@ -290,26 +273,56 @@ public class StatsService {
 				stats.put(consumedTea.getTea().getId(), stats.get(consumedTea.getTea().getId()) + 1);
 			}
 		}
-		
+
 		return stats;
 
 	}
 
 	private List<ConsumedTea> findConsumedTeasByDay(String username, String day) {
-	    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-	    LocalDate date = LocalDate.parse(day, formatter);
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+		LocalDate date = LocalDate.parse(day, formatter);
 
-	    LocalDateTime startOfDay = date.atStartOfDay();
-	    LocalDateTime endOfDay = date.atTime(LocalTime.MAX);
+		LocalDateTime startOfDay = date.atStartOfDay();
+		LocalDateTime endOfDay = date.atTime(LocalTime.MAX);
 
-	    MatchOperation matchUser = Aggregation.match(Criteria.where("user").is(username));
-	    MatchOperation matchTime = Aggregation.match(Criteria.where("time").gte(startOfDay).lt(endOfDay));
+		MatchOperation matchUser = Aggregation.match(Criteria.where("user").is(username));
+		MatchOperation matchTime = Aggregation.match(Criteria.where("time").gte(startOfDay).lt(endOfDay));
 
-	    Aggregation aggregation = Aggregation.newAggregation(matchUser, matchTime);
+		Aggregation aggregation = Aggregation.newAggregation(matchUser, matchTime);
 
-	    AggregationResults<ConsumedTea> results = mongoTemplate.aggregate(aggregation, "consumedTea", ConsumedTea.class);
+		AggregationResults<ConsumedTea> results = mongoTemplate.aggregate(aggregation, "consumedTea",
+				ConsumedTea.class);
 
-	    return results.getMappedResults();
+		return results.getMappedResults();
+	}
+
+	public Map<String, Map<String, Integer>> getByWeek(String username, String week) {
+		Map<String, Map<String, Integer>> stats = new HashMap<String, Map<String, Integer>>();
+		
+		if (username != null) {
+			
+		}
+		
+		List<ConsumedTea> consumedTeas = getConsumedTeasByUserAndWeek(username, week);
+
+		for (ConsumedTea consumedTea : consumedTeas) {
+			String teaId = consumedTea.getTea().getId();
+
+			if (!stats.containsKey(formatDailyKey(consumedTea))) {
+				Map<String, Integer> map = new HashMap<String, Integer>();
+				map.put(teaId, 1);
+				stats.put(formatDailyKey(consumedTea), map);
+			} else if (!stats.get(formatDailyKey(consumedTea)).containsKey(teaId)) {
+				Map<String, Integer> map = stats.get(formatDailyKey(consumedTea));
+				map.put(teaId, 1);
+				stats.put(formatDailyKey(consumedTea), map);
+			} else {
+				Map<String, Integer> map = stats.get(formatDailyKey(consumedTea));
+				map.put(teaId, map.get(teaId) + 1);
+				stats.put(formatDailyKey(consumedTea), map);
+			}
+		}
+		return stats;
 	}
 
 }

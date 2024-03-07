@@ -1,95 +1,54 @@
 import { Box } from "@mui/system";
-import { CircularProgress } from "@mui/material";
-import React, { useState, useEffect } from "react";
-import axios from "../../axiosInstance";
-import { useSearchParams } from "react-router-dom";
+import React from "react";
 
-// Mock data for the bar chart
-
-const DayStats = () => {
-  const [teas, setTeas] = useState([]);
-  const [teaStats, setTeaStats] = useState({});
-  const [maxValue, setMaxValue] = useState(0);
-  const [loading, setLoading] = useState(true); // State to handle loading status
-
-  // useSearchParams gives you access to the current search parameters
-  const [searchParams] = useSearchParams();
-
-  // Get the 'week' query parameter from the URL
-  const week = searchParams.get("week");
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true); // Start loading
-      try {
-        const statsResponse = await axios.get("stats/getTotalStatsByUser");
-        setTeaStats(statsResponse.data);
-        const maxStatValue = Math.max(...Object.values(statsResponse.data));
-        setMaxValue(maxStatValue);
-
-        const teasResponse = await axios.get("tea/getall");
-        setTeas(teasResponse.data);
-      } catch (error) {
-        console.error("Failed to fetch data:", error);
-      } finally {
-        setLoading(false); // End loading
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="lifetime-stats-container">
-        <h1 style={{ margin: "10px" }}>Lifetime stats</h1>
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column", // Adjust the main axis to vertical
-            justifyContent: "center",
-            gap: "10px", // Adjust gap for vertical spacing
-            alignItems: "center", // Align items centrally along the cross axis
-            height: "auto", // Adjust height to auto to accommodate the content
-            backgroundColor: "#1c1c1c",
-            borderRadius: "5px",
-            padding: "25px",
-            width: "100%", // Adjust width as needed
-          }}
-        >
-          <p style={{ margin: "30px", color: "white" }}>Loading</p>{" "}
-          <CircularProgress /> {/* Loading indicator */}
-        </Box>
-      </div>
-    );
-  }
-
-  const fetchTeas = async () => {
-    const response = await axios.get("tea/getall");
-    setTeas(response.data);
-  };
-
-  const doesTeaExist = (teaId) => {
-    if (teaStats[teaId] === undefined) {
-      return "none";
-    } else {
-      return "flex";
-    }
-  };
-
+const DayStats = ({ teaStats, teas, day }) => {
   const calculateWidthPercentage = (teaId) => {
-    if (teaStats[teaId] === undefined || maxValue === 0) {
+    const maxValue = Math.max(...Object.values(teaStats));
+    if (!teaStats[teaId] || maxValue === 0) {
       return "max-content";
     }
-
     const value = teaStats[teaId] || 0;
-    // Calculate the height percentage relative to the maxValue
     return (value / maxValue) * 100 + "%";
   };
 
+  const doesTeaExist = (teaId) => {
+    // Check if teaStats is an object and not null
+    if (typeof teaStats === "object" && teaStats !== null) {
+      return teaId in teaStats ? "flex" : "none";
+    } else {
+      // Handle the case where teaStats is not an object
+      console.error("teaStats is not an object:", teaStats);
+      return "none"; // or any other fallback you deem appropriate
+    }
+  };
+
+  const getDayOfWeek = (day) => {
+    // Convert Day-Month-Year to a format JavaScript understands (Month-Day-Year)
+    const parts = day.split("-");
+    const formattedDate = `${parts[1]}-${parts[0]}-${parts[2]}`;
+    const date = new Date(formattedDate);
+    const days = [
+      "Sonntag",
+      "Montag",
+      "Dienstag",
+      "Mittwoch",
+      "Donnerstag",
+      "Freitag",
+      "Samstag",
+    ];
+
+    return days[date.getDay()];
+  };
+
+  const dayOfWeek = getDayOfWeek(day);
+
+  day = day.replace(/-/g, ".");
+
   return (
     <div className="lifetime-stats-container">
-      <h1 style={{ margin: "10px" }}>Lifetime stats</h1>
+      <h1 style={{ margin: "10px" }}>
+        {dayOfWeek} | {day}
+      </h1>
       <Box
         sx={{
           display: "flex",

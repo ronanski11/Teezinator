@@ -1,6 +1,5 @@
 package com.ronanski11.teezinator.controller;
 
-import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +9,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ronanski11.teezinator.model.ConsumedTea;
 import com.ronanski11.teezinator.security.AuthenticationService;
 import com.ronanski11.teezinator.service.StatsService;
 
@@ -60,9 +58,15 @@ public class StatsController {
 	}
 	
 	@GetMapping("/weekly")
-	public ResponseEntity<List<ConsumedTea>> getByWeek(@RequestParam String week, @RequestParam String username) {
-		return ResponseEntity.ok(statsService.getConsumedTeasByUserAndWeek(username, week));
+	public ResponseEntity<Map<String, Map<String, Integer>>> getByWeek(@RequestParam String week, @RequestParam(required = false) String username) {
+		// return ResponseEntity.ok(statsService.getConsumedTeasByUserAndWeek(username, week));
+		if (username == null) {
+			username = auth.getUsername();
+		}
+		return ResponseEntity.ok(statsService.getByWeek(username, week));
 	}
+	
+	
 	
 	@GetMapping("/daily")
 	public ResponseEntity<Map<String, Integer>> getByDay(@RequestParam String day, @RequestParam String username) {

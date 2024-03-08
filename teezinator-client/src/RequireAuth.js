@@ -30,7 +30,13 @@ export const isTokenValid = (token) => {
 };
 
 const RequireAuth = ({ children }) => {
-  const token = localStorage.getItem("TeezinatorToken");
+  // Retrieve token from cookies
+  const cookies = document.cookie.split(";").map((cookie) => cookie.trim());
+  const tokenCookie = cookies.find((cookie) =>
+    cookie.startsWith("TeezinatorToken=")
+  );
+  const token = tokenCookie ? tokenCookie.split("=")[1] : null;
+
   if (!isTokenValid(token)) {
     // Redirect to the login page
     return <Navigate to="/login" />;

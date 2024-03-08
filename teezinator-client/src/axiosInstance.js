@@ -6,7 +6,13 @@ const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("TeezinatorToken");
+    // Retrieve token from cookies
+    const cookies = document.cookie.split(";").map((cookie) => cookie.trim());
+    const tokenCookie = cookies.find((cookie) =>
+      cookie.startsWith("TeezinatorToken=")
+    );
+    const token = tokenCookie ? tokenCookie.split("=")[1] : null;
+
     if (token) {
       config.headers["Authorization"] = "Bearer " + token;
     }

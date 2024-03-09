@@ -1,5 +1,2 @@
 # Ignore .env file
 .env
-
-# Ignore the entire teezinator-db/dump directory
-teezinator-db/dump/

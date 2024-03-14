@@ -10,7 +10,6 @@ const FullWeekStats = () => {
   const [searchParams] = useSearchParams();
   const [weeklyStats, setWeeklyStats] = useState({});
   const [teas, setTeas] = useState([]);
-  const [statsDoneLoading, setStatsDoneLoading] = useState(false);
 
   // Get the 'week' query parameter from the URL
   const week = searchParams.get("week");
@@ -61,6 +60,7 @@ const FullWeekStats = () => {
           width: "100%",
           display: "flex",
           flexDirection: "row",
+          marginTop: "100px",
         }}
       >
         <WeeklyStatsInfo week={week} />

@@ -5,7 +5,7 @@ import LifetimeLeaderboard from "../LifetimeLeaderboard/LifetimeLeaderboard";
 
 const Leaderboard = () => {
   return (
-    <div>
+    <div style={{ height: "max-content" }}>
       <Navbar />
       <div
         style={{
@@ -13,6 +13,7 @@ const Leaderboard = () => {
           display: "flex",
           flexDirection: "row",
           gap: "5%",
+          marginTop: "100px",
         }}
       >
         <LifetimeLeaderboard />

@@ -16,7 +16,7 @@ import {
 import moment from "moment";
 import ImageIcon from "@mui/icons-material/Image"; // Import an icon for images
 
-const TeaStatsTable = ({ week }) => {
+const TeaStatsTable = ({ day }) => {
   const [consumedTeas, setConsumedTeas] = useState([]);
   const [loading, setLoading] = useState(false); // Initialize loading state
   const [open, setOpen] = useState(false); // For modal open/close
@@ -25,13 +25,13 @@ const TeaStatsTable = ({ week }) => {
   useEffect(() => {
     setLoading(true); // Start loading before fetching data
     axios
-      .get("/stats/getWeeklyInfo", { params: { week } })
+      .get("/stats/getDailyInfo", { params: { day } })
       .then((response) => {
         setConsumedTeas(response.data);
       })
       .catch((error) => console.error("There was an error!", error))
       .finally(() => setLoading(false)); // Stop loading regardless of the outcome
-  }, [week]);
+  }, [day]);
 
   const formatTime = (time) => {
     return (
@@ -98,7 +98,9 @@ const TeaStatsTable = ({ week }) => {
 
   return (
     <div style={{ margin: "1rem", width: "100%" }}>
-      <h1 style={{ margin: "10px" }}>Tee stats Woche {week}</h1>
+      <h1 style={{ margin: "10px" }}>
+        Tee Stats {getDayOfWeek(day)} | {day}
+      </h1>
       <Box
         sx={{
           display: "flex",

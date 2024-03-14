@@ -16,7 +16,7 @@ import lombok.Data;
 @Document
 @Data
 @Builder
-public class User implements UserDetails{
+public class User implements UserDetails {
 
 	@Id
 	private String id;
@@ -24,36 +24,31 @@ public class User implements UserDetails{
 	private String username;
 
 	private String password;
-	
-    private Role role;
+
+	private Role role;
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		// TODO Auto-generated method stub
 		return List.of(new SimpleGrantedAuthority(role.name()));
 	}
 
 	@Override
 	public boolean isAccountNonExpired() {
-		// TODO Auto-generated method stub
 		return true;
 	}
 
 	@Override
 	public boolean isAccountNonLocked() {
-		// TODO Auto-generated method stub
 		return true;
 	}
 
 	@Override
 	public boolean isCredentialsNonExpired() {
-		// TODO Auto-generated method stub
 		return true;
 	}
 
 	@Override
 	public boolean isEnabled() {
-		// TODO Auto-generated method stub
 		return true;
 	}
 

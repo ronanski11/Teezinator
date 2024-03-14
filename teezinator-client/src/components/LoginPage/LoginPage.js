@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import axios from "../../axiosInstance";
 import { useNavigate } from "react-router-dom";
 import { isTokenValid } from "../../RequireAuth";
 import {
@@ -29,13 +29,10 @@ const LoginPage = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(
-        "http://localhost:8080/api/auth/authenticate",
-        {
-          username,
-          password,
-        }
-      );
+      const response = await axios.post("/auth/authenticate", {
+        username,
+        password,
+      });
       const token = response.data.token;
       setCookie("TeezinatorToken", token, 1); // Store the token for 1 day
 

@@ -41,7 +41,6 @@ const WeeklyStats = () => {
   if (loading) {
     return (
       <div className="lifetime-stats-container">
-        <h1 style={{ margin: "10px" }}>Lifetime stats</h1>
         <Box
           sx={{
             display: "flex",
@@ -69,8 +68,7 @@ const WeeklyStats = () => {
   };
 
   return (
-    <div className="lifetime-stats-container">
-      <h1 style={{ margin: "10px" }}>Weekly stats</h1>
+    <div style={{ width: "95%" }}>
       <Box
         sx={{
           display: "flex",

@@ -1,8 +1,9 @@
 import { Box } from "@mui/system";
 import React from "react";
-import { CircularProgress } from "@mui/material";
 
 const DayStats = ({ teaStats, teas, day }) => {
+  console.log(teaStats);
+
   const calculateWidthPercentage = (teaId) => {
     const maxValue = Math.max(...Object.values(teaStats));
     if (!teaStats[teaId] || maxValue === 0) {
@@ -52,7 +53,7 @@ const DayStats = ({ teaStats, teas, day }) => {
   });
 
   return (
-    <div style={{ margin: "1rem" }}>
+    <div style={{ margin: "1rem", width: "95%" }}>
       <h1 style={{ margin: "10px" }}>
         {dayOfWeek} | {day}
       </h1>
@@ -80,7 +81,13 @@ const DayStats = ({ teaStats, teas, day }) => {
               width: "100%",
             }} // Use flexbox for horizontal layout of each bar
           >
-            <p style={{ color: "white", width: "150px", textAlign: "right" }}>
+            <p
+              style={{
+                color: "white",
+                width: "180px",
+                textAlign: "right",
+              }}
+            >
               {tea.name}
             </p>
             <div className="stats-bar-container">

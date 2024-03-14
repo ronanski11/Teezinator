@@ -1,9 +1,36 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { AppBar, Toolbar, Typography, Button } from "@mui/material";
 
 const Navbar = () => {
+  // State to manage navbar visibility
+  const [showNavbar, setShowNavbar] = useState(true);
+  // State to store the last scroll position
+  const [lastScrollY, setLastScrollY] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      // Show navbar if scrolling up, hide if scrolling down
+      if (currentScrollY < lastScrollY) {
+        setShowNavbar(true);
+      } else if (currentScrollY > lastScrollY) {
+        setShowNavbar(false);
+      }
+      setLastScrollY(currentScrollY);
+    };
+
+    // Add scroll event listener
+    window.addEventListener("scroll", handleScroll);
+
+    // Clean up event listener
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [lastScrollY]);
+
   return (
-    <AppBar position="static">
+    <AppBar
+      position="fixed"
+      style={{ top: showNavbar ? 0 : "-100px", transition: "top 0.3s" }}
+    >
       <Toolbar sx={{ minHeight: "80px" }}>
         {" "}
         {/* Increase toolbar height */}

@@ -9,7 +9,7 @@ function Home() {
       <header>
         <Navbar></Navbar>
       </header>
-      <main>
+      <main style={{ marginTop: "100px" }}>
         <Homepage></Homepage>
       </main>
       <footer>

@@ -2,31 +2,37 @@ import React, { useState, useEffect } from "react";
 import { Box } from "@mui/system";
 import { Button } from "@mui/material";
 import axios from "../../axiosInstance";
+import CircularProgress from "@mui/material/CircularProgress";
 
 const DailyStats = () => {
   const [dailyStats, setDailyStats] = useState([]);
   const [maxValue, setMaxValue] = useState(0);
+  const [loading, setLoading] = useState(true); // Added loading state
 
   useEffect(() => {
     fetchDailyStats();
   }, []);
 
   const fetchDailyStats = async () => {
-    const response = await axios.get("stats/getTotalDailyStatsByUser");
-    // Assuming the response data is in the desired Map format or needs conversion
-    const data = response.data;
-    // Convert object to an array format suitable for rendering
-    const statsArray = Object.entries(data).map(([day, totalTeaDrank]) => ({
-      day,
-      totalTeaDrank,
-    }));
-    setDailyStats(statsArray);
+    setLoading(true); // Start loading
+    try {
+      const response = await axios.get("stats/getTotalDailyStatsByUser");
+      const data = response.data;
+      const statsArray = Object.entries(data).map(([day, totalTeaDrank]) => ({
+        day,
+        totalTeaDrank,
+      }));
+      setDailyStats(statsArray);
 
-    // Find the maximum value among the teaStats
-    const maxStatValue = Math.max(
-      ...statsArray.map((stat) => stat.totalTeaDrank)
-    );
-    setMaxValue(maxStatValue);
+      const maxStatValue = Math.max(
+        ...statsArray.map((stat) => stat.totalTeaDrank)
+      );
+      setMaxValue(maxStatValue);
+    } catch (error) {
+      console.error("Failed to fetch data:", error);
+    } finally {
+      setLoading(false); // End loading
+    }
   };
 
   const calculateWidthPercentage = (totalTeaDrank) => {
@@ -34,9 +40,32 @@ const DailyStats = () => {
     return `${(totalTeaDrank / maxValue) * 100}%`;
   };
 
+  if (loading) {
+    // Conditional rendering based on loading state
+    return (
+      <div className="lifetime-stats-container">
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "auto",
+            backgroundColor: "#1c1c1c",
+            borderRadius: "5px",
+            padding: "25px",
+            width: "100%",
+          }}
+        >
+          <p style={{ margin: "30px", color: "white" }}>Loading</p>
+          <CircularProgress />
+        </Box>
+      </div>
+    );
+  }
+
   return (
-    <div className="lifetime-stats-container">
-      <h1 style={{ margin: "10px" }}>Daily stats</h1>
+    <div style={{ width: "95%" }}>
       <Box
         sx={{
           display: "flex",
@@ -99,7 +128,7 @@ const DailyStats = () => {
             </div>
             <Button
               color="inherit"
-              href="/leaderboard"
+              href={`/day?day=${dailyStat.day}`}
               sx={{
                 backgroundColor: "rgba(255,255,255,0.1)",
                 "&:hover": {

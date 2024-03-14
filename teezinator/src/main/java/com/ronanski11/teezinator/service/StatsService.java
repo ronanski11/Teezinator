@@ -32,6 +32,7 @@ import org.springframework.stereotype.Service;
 import com.ronanski11.teezinator.model.ConsumedTea;
 import com.ronanski11.teezinator.model.User;
 import com.ronanski11.teezinator.repository.ConsumedTeaRepository;
+import com.ronanski11.teezinator.repository.ImageRepository;
 import com.ronanski11.teezinator.repository.TeaRepository;
 import com.ronanski11.teezinator.repository.UserRepository;
 
@@ -46,6 +47,9 @@ public class StatsService {
 
 	@Autowired
 	TeaRepository teaRepository;
+
+	@Autowired
+	ImageRepository imageRepository;
 
 	@Autowired
 	MongoTemplate mongoTemplate;
@@ -247,7 +251,7 @@ public class StatsService {
 		return sortedStats;
 	}
 
-	public List<ConsumedTea> getConsumedTeasByUserAndWeek(String username, String week) {
+	public List<ConsumedTea> getConsumedTeasByUserAndWeek(String username, String week, boolean sort) {
 		List<LocalDate> startAndEndDates = getStartAndEndDates(week);
 		LocalDate startDate = startAndEndDates.get(0);
 		LocalDate endDate = startAndEndDates.get(1);
@@ -255,11 +259,15 @@ public class StatsService {
 		MatchOperation matchUser = Aggregation.match(Criteria.where("user").is(username));
 		MatchOperation matchTime = Aggregation
 				.match(Criteria.where("time").gte(startDate.atStartOfDay()).lte(endDate.atTime(23, 59, 59)));
-		
-	    SortOperation sortByTimeAsc = Aggregation.sort(Sort.Direction.ASC, "time");
 
-	    // Include the sorting operation in your aggregation pipeline
-	    Aggregation aggregation = Aggregation.newAggregation(matchUser, matchTime, sortByTimeAsc);
+		Aggregation aggregation;
+		if (sort) {
+			// Include the sorting operation in your aggregation pipeline
+			aggregation = Aggregation.newAggregation(matchUser, matchTime,
+					Aggregation.sort(Sort.Direction.ASC, "time"));
+		} else {
+			aggregation = Aggregation.newAggregation(matchUser, matchTime);
+		}
 
 		AggregationResults<ConsumedTea> results = mongoTemplate.aggregate(aggregation, "consumedTea",
 				ConsumedTea.class);
@@ -267,7 +275,7 @@ public class StatsService {
 		return results.getMappedResults();
 	}
 
-	public Map<String, Integer> getConsumedTeasByUserAndDay(String username, String day) {
+	public Map<String, Integer> getByDay(String username, String day) {
 		Map<String, Integer> stats = new HashMap<String, Integer>();
 		List<ConsumedTea> consumedTeas = findConsumedTeasByDay(username, day);
 
@@ -303,8 +311,8 @@ public class StatsService {
 
 	public Map<String, Map<String, Integer>> getByWeek(String username, String week) {
 		Map<String, Map<String, Integer>> stats = new HashMap<String, Map<String, Integer>>();
-		
-		List<ConsumedTea> consumedTeas = getConsumedTeasByUserAndWeek(username, week);
+
+		List<ConsumedTea> consumedTeas = getConsumedTeasByUserAndWeek(username, week, true);
 
 		for (ConsumedTea consumedTea : consumedTeas) {
 			String teaId = consumedTea.getTea().getId();
@@ -323,19 +331,57 @@ public class StatsService {
 				stats.put(formatDailyKey(consumedTea), map);
 			}
 		}
-		
+
 		return sortByDateAscending(stats);
 	}
-	
-	public Map<String, Map<String, Integer>> sortByDateAscending(Map<String, Map<String, Integer>> stats) {
-        Map<String, Map<String, Integer>> sortedMap = stats.entrySet().stream()
-                .sorted(Map.Entry.comparingByKey(Comparator.comparing(key -> LocalDate.parse(key, dateFormatter))))
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        Map.Entry::getValue,
-                        (oldValue, newValue) -> oldValue, LinkedHashMap::new));
 
-        return sortedMap;
+	public Map<String, Map<String, Integer>> sortByDateAscending(Map<String, Map<String, Integer>> stats) {
+		Map<String, Map<String, Integer>> sortedMap = stats.entrySet().stream()
+				.sorted(Map.Entry.comparingByKey(Comparator.comparing(key -> LocalDate.parse(key, dateFormatter))))
+				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (oldValue, newValue) -> oldValue,
+						LinkedHashMap::new));
+
+		return sortedMap;
+	}
+
+	public String getImageById(String imageId) {
+		return imageRepository.findById(imageId).get().getBaseString();
+	}
+
+	public List<ConsumedTea> getConsumedTeasByUserAndDay(String username, String day) {
+
+		LocalDate date = LocalDate.parse(day, dateFormatter);
+
+		LocalDateTime startOfDay = date.atStartOfDay();
+		LocalDateTime endOfDay = date.plusDays(1).atStartOfDay().minusSeconds(1);
+
+		MatchOperation matchUser = Aggregation.match(Criteria.where("user").is(username));
+		MatchOperation matchTime = Aggregation.match(Criteria.where("time").gte(startOfDay).lt(endOfDay));
+
+		SortOperation sortByTimeAsc = Aggregation.sort(Sort.Direction.ASC, "time");
+
+		// Include the sorting operation in your aggregation pipeline
+		Aggregation aggregation = Aggregation.newAggregation(matchUser, matchTime, sortByTimeAsc);
+
+		AggregationResults<ConsumedTea> results = mongoTemplate.aggregate(aggregation, "consumedTea",
+				ConsumedTea.class);
+
+		return results.getMappedResults();
+	}
+
+	public Map<String, Integer> getLeaderBoardByWeek(String week) {
+
+		Map<String, Integer> stats = new HashMap<String, Integer>();
+		for (User user : userRepository.findAll()) {
+			stats.put(user.getUsername(), getConsumedTeasByUserAndWeek(user.getUsername(), week, false).size());
+		}
+
+		Map<String, Integer> sortedStats = stats.entrySet().stream()
+				.sorted(Map.Entry.<String, Integer>comparingByValue().reversed()).collect(Collectors.toMap(
+						Map.Entry::getKey, Map.Entry::getValue, (oldValue, newValue) -> oldValue, LinkedHashMap::new));
+
+		return sortedStats;
+
 	}
 
 }

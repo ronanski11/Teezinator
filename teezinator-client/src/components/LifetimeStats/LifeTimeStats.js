@@ -35,7 +35,6 @@ const BarChartMock = () => {
   if (loading) {
     return (
       <div className="lifetime-stats-container">
-        <h1 style={{ margin: "10px" }}>Lifetime stats</h1>
         <Box
           sx={{
             display: "flex",
@@ -76,8 +75,7 @@ const BarChartMock = () => {
   };
 
   return (
-    <div className="lifetime-stats-container">
-      <h1 style={{ margin: "10px" }}>Lifetime stats</h1>
+    <div>
       <Box
         sx={{
           display: "flex",
@@ -102,7 +100,13 @@ const BarChartMock = () => {
               width: "100%",
             }} // Use flexbox for horizontal layout of each bar
           >
-            <p style={{ color: "white", width: "100px", textAlign: "right" }}>
+            <p
+              style={{
+                color: "white",
+                width: "180px",
+                textAlign: "right",
+              }}
+            >
               {tea.name}
             </p>
             <div className="stats-bar-container">

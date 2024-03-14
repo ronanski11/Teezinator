@@ -67,13 +67,28 @@ public class StatsController {
 	
 	@GetMapping("/getWeeklyInfo")
 	public ResponseEntity<List<ConsumedTea>> getWeeklyInfo(@RequestParam String week, @RequestParam(required = false) String username) {
-		return ResponseEntity.ok(statsService.getConsumedTeasByUserAndWeek(isUsernameNull(username), week));
+		return ResponseEntity.ok(statsService.getConsumedTeasByUserAndWeek(isUsernameNull(username), week, true));
+	}
+	
+	@GetMapping("/getDailyInfo")
+	public ResponseEntity<List<ConsumedTea>> getDailyInfo(@RequestParam String day, @RequestParam(required = false) String username) {
+		return ResponseEntity.ok(statsService.getConsumedTeasByUserAndDay(isUsernameNull(username), day));
 	}
 	
 	
 	@GetMapping("/daily")
-	public ResponseEntity<Map<String, Integer>> getByDay(@RequestParam String day, @RequestParam String username) {
-		return ResponseEntity.ok(statsService.getConsumedTeasByUserAndDay(username, day));
+	public ResponseEntity<Map<String, Integer>> getByDay(@RequestParam String day, @RequestParam(required = false) String username) {
+		return ResponseEntity.ok(statsService.getByDay(isUsernameNull(username), day));
+	}
+	
+	@GetMapping("/getImageById")
+	public ResponseEntity<String> getImageById(@RequestParam String imageId) {
+		return ResponseEntity.ok(statsService.getImageById(imageId));
+	}
+	
+	@GetMapping("/getLeaderboardByWeek")
+	public ResponseEntity<Map<String, Integer>> getLeaderBoardByWeek(@RequestParam String week) {
+		return ResponseEntity.ok(statsService.getLeaderBoardByWeek(week));
 	}
 	
 	

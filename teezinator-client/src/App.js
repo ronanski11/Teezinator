@@ -15,6 +15,7 @@ import Stats from "./components/Stats/Stats";
 import AddTea from "./components/AddTea/AddTea";
 import Leaderboard from "./components/Leaderboard/Leaderboard";
 import FullWeekStats from "./components/FullWeekStats/FullWeekStats";
+import FullDayStats from "./components/FullDayStats/FullDayStats";
 
 function App() {
   // State to manage theme mode
@@ -47,6 +48,7 @@ function App() {
             <Route path="/addTea" element={<AddTea />} />
             <Route path="/leaderboard" element={<Leaderboard />} />
             <Route path="/week" element={<FullWeekStats />} />
+            <Route path="/day" element={<FullDayStats />}></Route>
           </Route>
         </Routes>
       </Router>

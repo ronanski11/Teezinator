@@ -136,6 +136,7 @@ const AddTea = () => {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
+          marginTop: "100px",
         }}
       >
         <div style={{ width: "50%" }}>
@@ -184,8 +185,11 @@ const AddTea = () => {
                 InputProps={{
                   readOnly: false,
                   endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton onClick={openDatePicker}>
+                    <InputAdornment position="end" style={{ height: "100%" }}>
+                      <IconButton
+                        onClick={openDatePicker}
+                        style={{ height: "100%" }}
+                      >
                         <CalendarTodayIcon />
                       </IconButton>
                     </InputAdornment>

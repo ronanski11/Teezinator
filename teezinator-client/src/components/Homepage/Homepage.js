@@ -61,7 +61,7 @@ function Homepage() {
               <CardMedia
                 component="img"
                 sx={{ height: 300, objectFit: "cover" }}
-                image={`data:image/jpeg;base64,${tea.image}`}
+                image={`images/${tea.image}`}
                 alt={tea.name}
               />
               <CardContent>

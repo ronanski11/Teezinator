@@ -33,6 +33,7 @@ public class TeaController {
 	TeaRepository t;
 
 	@PostMapping("/addTea")
+	
 	public ResponseEntity<String> addTea(@RequestParam String teaId, @RequestParam LocalDateTime timeOfConsumption,
 			@RequestParam(required = false) MultipartFile image, @RequestParam(required = false) String username) {
 		if (username == null || teaService.getUserRole(auth.getUsername()) != Role.ADMIN) {

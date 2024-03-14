@@ -25,7 +25,12 @@ const AddTea = () => {
   const [inputValue, setInputValue] = useState(
     moment().format("MMMM D, YYYY h:mm a")
   );
-  const [selectedUser, setSelectedUser] = useState(""); // State to hold the selected user
+  const [selectedUser, setSelectedUser] = useState("");
+  const [teaType, setTeaType] = useState("");
+  const [teas, setTeas] = useState([]);
+  const [image, setImage] = useState(null);
+  const [fileName, setFileName] = useState("");
+  const datePickerRef = useRef(null);
 
   useEffect(() => {
     const fetchUserRole = async () => {
@@ -44,7 +49,7 @@ const AddTea = () => {
       const fetchUsernames = async () => {
         try {
           const response = await axios.get("/tea/getAllUsernames");
-          setUsernames(response.data); // Assume response.data is the array of usernames
+          setUsernames(response.data);
         } catch (error) {
           console.error("Failed to fetch usernames", error);
         }
@@ -53,10 +58,13 @@ const AddTea = () => {
     }
   }, [role]);
 
-  const datePickerRef = useRef(null);
-  const [teaType, setTeaType] = useState("");
-  const [teas, setTeas] = useState([]);
-  const [image, setImage] = useState(null); // Added state for the image
+  useEffect(() => {
+    const fetchTeas = async () => {
+      const response = await axios.get("/tea/getall");
+      setTeas(response.data);
+    };
+    fetchTeas();
+  }, []);
 
   const handleDateChange = (date) => {
     setTimeOfConsumption(date);
@@ -71,23 +79,50 @@ const AddTea = () => {
     }
   };
 
-  const [fileName, setFileName] = useState(""); // Add this line
-
   const openDatePicker = () => {
     datePickerRef.current.setOpen(true);
   };
 
   const handleImageChange = (event) => {
     const file = event.target.files[0];
-    if (file) {
-      setImage(file);
-      setFileName(file.name); // Update the fileName state
-    }
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        let width = img.width;
+        let height = img.height;
+
+        if (width > 800 || height > 800) {
+          const scalingFactor = Math.min(800 / width, 800 / height);
+          width = width * scalingFactor;
+          height = height * scalingFactor;
+        }
+
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, width, height);
+
+        canvas.toBlob((blob) => {
+          const resizedFile = new File([blob], file.name, {
+            type: "image/png",
+            lastModified: Date.now(),
+          });
+          setImage(resizedFile);
+          setFileName(resizedFile.name);
+        }, "image/png");
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
   };
 
   const removeUploadedImage = () => {
     setImage(null);
-    setFileName(""); // Clear the filename from the TextField
+    setFileName("");
   };
 
   const handleSubmit = async (event) => {
@@ -102,9 +137,7 @@ const AddTea = () => {
     if (role === "ADMIN" && selectedUser) {
       formData.append("username", selectedUser);
     }
-
     if (image) formData.append("image", image);
-
     try {
       const response = await axios.post("/tea/addTea", formData, {
         headers: {
@@ -116,15 +149,6 @@ const AddTea = () => {
       console.error("There was an error adding the tea:", error);
       alert("Failed to add tea.");
     }
-  };
-
-  useEffect(() => {
-    fetchTeas();
-  }, []);
-
-  const fetchTeas = async () => {
-    const response = await axios.get("/tea/getall");
-    setTeas(response.data);
   };
 
   return (

@@ -136,7 +136,7 @@ const BarChartMock = () => {
                   {teaStats[tea.id] || 0}
                 </span>
                 <img
-                  src={`data:image/jpeg;base64,${tea.image}`}
+                  src={`images/${tea.image}`}
                   style={{ height: "100%", borderRadius: "5px" }}
                   alt={`Tea ${tea.name}`}
                 ></img>

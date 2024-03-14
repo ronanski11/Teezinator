@@ -65,11 +65,7 @@ public class TeaService {
 	}
 
 	public List<Tea> getAllTeas() {
-		List<Tea> allTeas = teaRepository.findAll();
-		for (Tea tea : allTeas) {
-			tea.setImage(imageRepository.findById(tea.getImage()).get().getBaseString());
-		}
-		return allTeas;
+		return teaRepository.findAll();
 	}
 	
 	public Tea findById(String teaId) {
@@ -91,9 +87,7 @@ public class TeaService {
 	public List<Tea> getMultipleById(String[] ids) {
 		List<Tea> teas = new ArrayList<Tea>();
 		for (String id : ids) {
-			Tea tea = teaRepository.findById(id).get();
-			tea.setImage(imageRepository.findById(tea.getImage()).get().getBaseString());
-			teas.add(tea);
+			teas.add(teaRepository.findById(id).get());
 		}
 		return teas;
 	}

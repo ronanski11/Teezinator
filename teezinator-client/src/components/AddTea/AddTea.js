@@ -17,6 +17,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import moment from "moment";
 import Navbar from "../Navbar/Navbar";
 import Footer from "../Footer/Footer";
+import { toast } from "react-toastify";
 
 const AddTea = () => {
   const [timeOfConsumption, setTimeOfConsumption] = useState(new Date());
@@ -110,11 +111,29 @@ const AddTea = () => {
         headers: {
           "Content-Type": "multipart/form-data",
         },
+      }).then(() => {
+        toast.success('Successfully added tea!', {
+          position: "top-center",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: false,
+          draggable: true,
+          theme: "dark",
+          });
       });
       console.log(response.data);
     } catch (error) {
       console.error("There was an error adding the tea:", error);
-      alert("Failed to add tea.");
+      toast.error("Failed to add tea", {
+        position: "top-center",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: false,
+        draggable: true,
+        theme: "dark",
+      });
     }
   };
 

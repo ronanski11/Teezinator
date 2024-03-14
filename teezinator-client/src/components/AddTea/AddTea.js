@@ -140,22 +140,26 @@ const AddTea = () => {
     }
     if (image) formData.append("image", image);
     try {
-      const response = await axios.post("/tea/addTea", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }).then(() => {
-        toast.success('Successfully added tea!', {
-          position: "top-center",
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: false,
-          draggable: true,
-          theme: "dark",
+      const response = await axios
+        .post("/tea/addTea", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        })
+        .then(() => {
+          toast.success("Successfully added tea!", {
+            position: "top-center",
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: false,
+            draggable: true,
+            theme: "dark",
           });
-      });
-      console.log(response.data);
+        });
+      setTeaType("");
+      setImage(null);
+      removeUploadedImage();
     } catch (error) {
       console.error("There was an error adding the tea:", error);
       toast.error("Failed to add tea", {

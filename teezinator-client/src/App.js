@@ -16,6 +16,8 @@ import AddTea from "./components/AddTea/AddTea";
 import Leaderboard from "./components/Leaderboard/Leaderboard";
 import FullWeekStats from "./components/FullWeekStats/FullWeekStats";
 import FullDayStats from "./components/FullDayStats/FullDayStats";
+import { ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   // State to manage theme mode
@@ -52,6 +54,8 @@ function App() {
           </Route>
         </Routes>
       </Router>
+
+      <ToastContainer />
     </ThemeProvider>
   );
 }
